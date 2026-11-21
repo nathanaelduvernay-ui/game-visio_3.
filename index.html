@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Game Visio : plateforme communautaire gaming, vocal, partage d'écran sans lag, profils personnalisables, statuts, sécurité anti-liens piégés, quêtes et Game Visio Plus." />
+  <title>Game Visio — Communauté Gaming, Vocal & Partage d'Écran</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="layout">
+    <!-- Barre latérale des communautés / serveurs -->
+    <nav class="rail" aria-label="Communautés">
+      <button class="rail-btn active" data-server="gv-hub" title="Game Visio Hub">GV</button>
+      <div class="rail-sep"></div>
+      <button class="rail-btn" data-server="fortnite" title="Escouade Fortnite">FN</button>
+      <button class="rail-btn" data-server="roblox" title="Communauté Roblox">RB</button>
+      <button class="rail-btn" data-server="tournois" title="Tournois & Duos">TR</button>
+      <button class="rail-btn accent-coin" id="btnOpenQuests" title="Quêtes & Pièces">★</button>
+      <button class="rail-btn accent-plus" id="btnOpenPlus" title="Game Visio Plus">+</button>
+    </nav>
+
+    <!-- Colonne salons, vocal et amis -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <h1 id="serverHeading">Game Visio</h1>
+        <span class="shield-pill">Anti-Liens OK</span>
+      </div>
+
+      <div class="group">
+        <div class="group-label">SALONS</div>
+        <button class="item-btn active" data-channel="général"># général</button>
+        <button class="item-btn" data-channel="recherche-team"># recherche-team</button>
+        <button class="item-btn" data-channel="clips-fun"># clips-fun</button>
+      </div>
+
+      <div class="group">
+        <div class="group-label">VOCAL & STREAM</div>
+        <button class="voice-trigger" id="btnJoinVoice">
+          <span>🔊 Salon Escouade</span>
+          <span id="voiceStateText">Rejoindre</span>
+        </button>
+        <div class="voice-list">
+          <div class="member-row" data-friend="Léo_FPS">
+            <span class="dot online"></span>
+            <span>Léo_FPS</span>
+            <small class="tag">Fortnite</small>
+          </div>
+          <div class="member-row" data-friend="Naya_RBX">
+            <span class="dot dnd"></span>
+            <span>Naya_RBX</span>
+            <small class="tag">Roblox</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-label">AMIS</div>
+        <div id="friendsContainer"></div>
+      </div>
+
+      <!-- Dock profil utilisateur -->
+      <div class="dock">
+        <div class="dock-profile" id="btnOpenProfile" title="Modifier mon profil, ma photo, ma bio et mon statut">
+          <div class="avatar-box">
+            <img id="dockAvatar" src="" alt="Photo de profil" />
+            <span class="dot online" id="dockStatusDot"></span>
+          </div>
+          <div class="dock-text">
+            <strong id="dockName">Player_GV</strong>
+            <small id="dockStatusText">En ligne • Fortnite</small>
+          </div>
+        </div>
+        <div class="dock-btns">
+          <button id="btnToggleMic" class="mini-icon" title="Micro">🎙️</button>
+          <button id="btnToggleOverlay" class="mini-icon" title="Mini-onglet In-Game">🪟</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Zone principale -->
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="channelHeading"># général</h2>
+          <p class="sub">Protection active contre les liens suspects • Partage d'écran fluide</p>
+        </div>
+        <div class="topbar-controls">
+          <span class="coins-badge" id="coinsBadge">🪙 300 Pièces</span>
+          <select id="qualitySelect" class="select-box" aria-label="Qualité du partage d'écran">
+            <option value="720p30">720p 30 FPS</option>
+            <option value="1080p60" selected>1080p 60 FPS</option>
+            <option value="4k60">4K 60 FPS (Plus)</option>
+          </select>
+          <button id="btnShareScreen" class="btn-primary">Partager l'écran</button>
+        </div>
+      </header>
+
+      <!-- Aperçu partage d'écran -->
+      <section class="stream-panel hidden" id="streamPanel">
+        <div class="stream-bar">
+          <span class="live-tag">DIRECT • <span id="streamQualityLabel">1080p 60 FPS</span></span>
+          <button id="btnStopShare" class="btn-danger">Couper le partage</button>
+        </div>
+        <video id="screenVideo" autoplay playsinline muted></video>
+        <p id="streamNote" class="stream-note">Flux prêt sans coupure de jeu.</p>
+      </section>
+
+      <!-- Fil de messages -->
+      <section class="feed" id="messagesFeed"></section>
+
+      <!-- Formulaire message -->
+      <form class="composer" id="messageForm">
+        <input type="text" id="messageInput" placeholder="Écrire un message ou coller un lien (vérifié automatiquement)..." autocomplete="off" />
+        <button type="submit" class="btn-primary">Envoyer</button>
+      </form>
+    </main>
+  </div>
+
+  <!-- Mini-onglet flottant d'appel In-Game -->
+  <div class="overlay-pip hidden" id="overlayPip">
+    <div class="pip-top" id="pipHeader">
+      <span>🎮 Appel In-Game</span>
+      <button id="btnClosePip" aria-label="Fermer">✕</button>
+    </div>
+    <div class="pip-content">
+      <div class="pip-line"><span class="dot online"></span> Vous <small id="pipMicLabel">Micro ON</small></div>
+      <div class="pip-line"><span class="dot online"></span> Léo_FPS <small>En vocal</small></div>
+      <div class="pip-line"><span class="dot dnd"></span> Naya_RBX <small>Ne pas déranger</small></div>
+      <div class="pip-actions">
+        <button id="pipMuteBtn" class="btn-ghost">Micro</button>
+        <button id="pipOpacityBtn" class="btn-ghost">Opacité</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale : Édition du profil, photo, bio, statut, bannière -->
+  <div class="modal-bg hidden" id="profileModal">
+    <div class="modal-box">
+      <div class="modal-banner" id="profileBannerPreview"></div>
+      <div class="modal-inner">
+        <h3>Mon Profil</h3>
+        <label>Pseudo
+          <input type="text" id="inputName" maxlength="24" />
+        </label>
+        <label>Statut visible
+          <select id="selectStatus">
+            <option value="online">🟢 En ligne</option>
+            <option value="idle">🟠 Inactif</option>
+            <option value="dnd">🔴 Ne pas déranger</option>
+            <option value="offline">⚫ Pas en ligne (Invisible)</option>
+          </select>
+        </label>
+        <label>Jeu / Activité actuelle
+          <input type="text" id="inputGame" maxlength="36" placeholder="Ex : Fortnite, Roblox, Minecraft..." />
+        </label>
+        <label>Bio
+          <textarea id="inputBio" rows="2" maxlength="140" placeholder="Ta bio joueur..."></textarea>
+        </label>
+        <label>Photo de profil (fichier image)
+          <input type="file" id="inputAvatarFile" accept="image/*" />
+        </label>
+        <label>Bannière & Effet de profil
+          <select id="selectBanner">
+            <option value="linear-gradient(135deg, #1d4ed8, #0ea5e9)">Bleu Électrique (Base)</option>
+            <option value="linear-gradient(135deg, #7e22ce, #ec4899)">Néon Violet & Rose (Pièces)</option>
+            <option value="linear-gradient(135deg, #047857, #22c55e)">Vert Arcade (Pièces)</option>
+            <option value="linear-gradient(135deg, #b45309, #facc15)">Or Game Visio Plus</option>
+          </select>
+        </label>
+        <div class="modal-foot">
+          <button type="button" id="btnCancelProfile" class="btn-ghost">Annuler</button>
+          <button type="button" id="btnSaveProfile" class="btn-primary">Sauvegarder</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale : Voir le profil d'un joueur au clic -->
+  <div class="modal-bg hidden" id="friendModal">
+    <div class="modal-box">
+      <div class="modal-banner" id="friendBanner"></div>
+      <div class="modal-inner">
+        <div class="friend-top">
+          <img id="friendAvatar" src="" alt="Avatar ami" class="big-avatar" />
+          <div>
+            <h3 id="friendName">Ami</h3>
+            <span id="friendStatusBadge" class="status-text">En ligne</span>
+          </div>
+        </div>
+        <p id="friendBio" class="bio-text"></p>
+        <div class="activity-box">
+          <strong>ACTIVITÉ EN COURS</strong>
+          <p id="friendActivity">Joue à Fortnite</p>
+        </div>
+        <div class="modal-foot">
+          <button type="button" id="btnCloseFriend" class="btn-ghost">Fermer</button>
+          <button type="button" id="btnInviteFriend" class="btn-primary">Rejoindre / Inviter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale : Quêtes, Pièces & Game Visio Plus -->
+  <div class="modal-bg hidden" id="questsModal">
+    <div class="modal-box wide">
+      <div class="modal-inner">
+        <h3>Quêtes, Pièces & Game Visio Plus</h3>
+        <p class="sub">Gagne des pièces gratuitement avec les quêtes pour débloquer des bannières et effets stylés, ou active Game Visio Plus.</p>
+        <div id="questsList" class="quests-wrap"></div>
+        <div class="plus-card">
+          <div>
+            <strong>⚡ Game Visio Plus</strong>
+            <p>Bannières et effets ultra-stylés, partage d'écran 4K 60 FPS et avantages exclusifs.</p>
+          </div>
+          <button type="button" id="btnEnablePlus" class="btn-primary">Activer Plus (Démo)</button>
+        </div>
+        <div class="modal-foot">
+          <button type="button" id="btnCloseQuests" class="btn-ghost">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

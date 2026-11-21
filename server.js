@@ -1,0 +1,21 @@
+const express = require('express');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.disable('x-powered-by');
+app.use(express.json({ limit: '2mb' }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', service: 'game-visio' });
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Game Visio actif sur le port ${PORT}`);
+});
